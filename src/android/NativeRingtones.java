@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.*;
 
 import android.content.ContentValues;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.media.Ringtone;
 import android.media.MediaPlayer;
@@ -33,7 +35,8 @@ public class NativeRingtones extends CordovaPlugin {
             return this.get(args.getString(0), callbackContext);
         }
         if (action.equals("play")){
-            return this.play(args.getString(0), callbackContext);
+            // ringtoneUri, playOnce, volume, streamType
+            return this.play(args.getString(0), args.getBoolean(1), args.getInt(2), args.getInt(3), callbackContext);
         }
         if (action.equals("stop")){
             return this.stop(args.getString(0), callbackContext);
@@ -90,24 +93,46 @@ public class NativeRingtones extends CordovaPlugin {
         return true;
     }
 
-    private boolean play(String ringtoneUri, final CallbackContext callbackContext) throws JSONException{
-        MediaPlayer ringtoneSound = MediaPlayer.create(this.cordova.getActivity().getApplicationContext(), Uri.parse(ringtoneUri));
+    private boolean play(String ringtoneUri, boolean playOnce, int volume, int streamType, final CallbackContext callbackContext) throws JSONException{
+        try {
+            if (streamType == -1) {
+                streamType = AudioManager.STREAM_NOTIFICATION;
+            }
 
-        if (ringtoneSound != null) {
-            ringtoneSound.start();
-            callbackContext.success("Play the ringtone succennfully!");
-        } else{
+            Context ctx = this.cordova.getActivity().getApplicationContext();
+            AssetManager am = ctx.getResources().getAssets();
+            AssetFileDescriptor afd = am.openFd(ringtoneUri);
+
+            MediaPlayer ringtoneSound = new MediaPlayer();
+            ringtoneSound.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            ringtoneSound.setAudioStreamType(streamType);
+            ringtoneSound.prepare();
+            ringtoneSound.setLooping(!playOnce);
+            ringtoneSound.setVolume(volume * 0.01f, volume * 0.01f)
+
+            if (ringtoneSound != null) {
+                ringtoneSound.start();
+            } else{
+                callbackContext.error("Can't play the ringtone!");
+            }
+        } catch (Exception e) {
             callbackContext.error("Can't play the ringtone!");
         }
-
         return true;
     }
 
     private boolean stop(String ringtoneUri, final CallbackContext callbackContext) throws JSONException{
-        MediaPlayer ringtoneSound = MediaPlayer.create(this.cordova.getActivity().getApplicationContext(), Uri.parse(ringtoneUri));
+        Context ctx = this.cordova.getActivity().getApplicationContext();
+        AssetManager am = ctx.getResources().getAssets();
+        AssetFileDescriptor afd = am.openFd(ringtoneUri);
+
+        MediaPlayer ringtoneSound = new MediaPlayer();
+        ringtoneSound.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        ringtoneSound.prepare();
 
         if (ringtoneSound != null) {
             ringtoneSound.stop();
+            ringtoneSound.release();
             callbackContext.success("Stop the ringtone succennfully!");
         } else{
             callbackContext.error("Can't stop the ringtone!");

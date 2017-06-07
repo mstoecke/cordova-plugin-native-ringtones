@@ -33,15 +33,15 @@ You can call the function getRingtone to get the ringtone list. There are two/th
 
 ```js
 document.addEventListener('deviceready', function () {
-        var ringtones;
-        cordova.plugins.NativeRingtones.getRingtone(function(success) {
-                ringtones = success;
-            },
-            function(err) {
-                alert(err);
-            });
+    cordova.plugins.NativeRingtones.getRingtone(
+        function(ringtones) {
             //An object array contains all the ringtones
-            setTimeout(function() { console.log(ringtones); }, 1000); 
+            console.log(ringtones);
+        },
+        function(err) {
+            alert(err);
+        }
+    );
 }, false);
 ```
 
@@ -49,8 +49,18 @@ You can call the function playRingtone or stopRingtone to play or stop a rington
 
 ```js
 document.addEventListener('deviceready', function () {
-        var ringtones;
-        cordova.plugins.NativeRingtones.playRingtone("/System/Library/Audio/UISounds/Modern/calendar_alert_chord.caf");
+    // if set to false, it will keep looping until call of stopRingtone (default: true)
+    var playOnce = false;
+    // ringtone volume, value between 0 and 100 (default: 100)
+    var volume = 50;
+    // Android only: play ringtone as type (default: cordova.plugins.NativeRingtones.STREAM_NOTIFICATION)
+    var streamType = cordova.plugins.NativeRingtones.STREAM_ALARM;
+
+    // params playOnce, volume, streamType are not required
+    cordova.plugins.NativeRingtones.playRingtone(
+        "/System/Library/Audio/UISounds/Modern/calendar_alert_chord.caf",
+        playOnce, volume, streamType
+    );
 }, false);
 ```
 

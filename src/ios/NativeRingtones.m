@@ -4,6 +4,7 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface NativeRingtones : CDVPlugin {
   // Member variables go here.
@@ -69,24 +70,16 @@
 /***   Test for store file to local folder
      NSData *fileData;
 　　 fileData = [[NSFileManager defaultManager] contentsAtPath:@"/System/Library/Audio/UISounds/photoShutter.caf"];
-
      NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
-
      NSString* pathCreate = [[paths objectAtIndex:0] stringByAppendingString:@"/Sounds"];
-
      NSString* pathCopy = [[paths objectAtIndex:0] stringByAppendingString:@"/Sounds/photoShutter.caf"];
-
      NSError *errorw1;
      NSError *errorw2;
-
      bool createDirectory = [[NSFileManager defaultManager] createDirectoryAtPath:pathCreate withIntermediateDirectories:YES attributes:nil error:&errorw1];
-
      bool existFile = [[NSFileManager defaultManager] fileExistsAtPath:pathCopy];
-
      if (existFile) {
        [[NSFileManager defaultManager] removeItemAtPath:pathCopy error:&errorw1];
      }
-
      bool success = [[NSFileManager defaultManager] copyItemAtPath:@"/System/Library/Audio/UISounds/photoShutter.caf" toPath:pathCopy error:&errorw2];
 ****/
 
@@ -101,42 +94,62 @@
 
 - (void)play:(CDVInvokedUrlCommand*)command
 {
-  CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
 
-  NSString* ringtoneUri = [command argumentAtIndex:0];
+    NSString* ringtoneUri = [command argumentAtIndex:0];
+    BOOL playOnce = [[command argumentAtIndex:1 withDefault:[NSNumber numberWithBool:YES]] boolValue];
+    NSInteger volume = [[command argumentAtIndex:2] integerValue];
 
-  NSURL *fileURL = [NSURL URLWithString:ringtoneUri];
-  SystemSoundID soundID;
-  AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
+    NSString* basePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"www"];
+    NSString* pathFromWWW = [NSString stringWithFormat:@"%@/%@", basePath, ringtoneUri];
 
-  if (soundID) {
+    NSURL *fileURL = [NSURL fileURLWithPath : pathFromWWW];
+    CFURLRef soundFileURLRef = (CFURLRef) CFBridgingRetain(fileURL);
+    //SystemSoundID soundID;
+    //AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
+
+    AVAudioPlayer *_audioPlayer;
+    _audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:fileURL error:nil];
+    _audioPlayer.volume = volume / 100.00;
+
+    if (playOnce == false) {
+        // Set any negative integer value to loop the sound indefinitely until you call the stop() method.
+        _audioPlayer.numberOfLoops = -1;
+    }
+
+    [_audioPlayer play];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+    /*
+    if (soundID) {
       AudioServicesPlaySystemSound(soundID);
       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  } else {
+    } else {
       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-  }
+    }
+    */
 
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)stop:(CDVInvokedUrlCommand*)command
 {
-  CDVPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
 
-  NSString* ringtoneUri = [command argumentAtIndex:0];
+    NSString* ringtoneUri = [command argumentAtIndex:0];
 
-  NSURL *fileURL = [NSURL URLWithString:ringtoneUri];
-  SystemSoundID soundID;
-  AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
+    NSURL *fileURL = [NSURL URLWithString:ringtoneUri];
+    SystemSoundID soundID;
+    AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
 
-  if (soundID) {
-      AudioServicesDisposeSystemSoundID(soundID);
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-  } else {
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-  }
+    if (soundID) {
+        AudioServicesDisposeSystemSoundID(soundID);
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
 
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end

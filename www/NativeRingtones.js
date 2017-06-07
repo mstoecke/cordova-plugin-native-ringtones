@@ -15,28 +15,34 @@ RingtoneManager.prototype.getRingtone = function (successCallback, errorCallback
     exec(successCallback, errorCallback, "NativeRingtones", "get", [ringtoneType]);
 };
 
-RingtoneManager.prototype.playRingtone = function (ringtoneUri, successCallback, errorCallback) {
+RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume, streamType, successCallback, errorCallback) {
     if (!successCallback) {
         successCallback = function (success) { };
     }
+
     if (!errorCallback) {
         errorCallback = function (error) { };
     }
-    if (ringtoneUri.indexOf("content") >= 0 || ringtoneUri.indexOf("System") >= 0) {
-        exec(successCallback, errorCallback, "NativeRingtones", "play", [ringtoneUri]);
+
+    if (typeof playOnce == "undefined") {
+        playOnce = true;
     }
-    else {
-        var contentPath = window.location.pathname.substr(window.location.pathname, window.location.pathname.length - 10);
-        var path;
-        if (device.platform === "Android") {
-            path = "file://" + contentPath + ringtoneUri.substr(7, ringtoneUri.length - 1);
-        } else {
-            path = contentPath + ringtoneUri.substr(7, ringtoneUri.length - 1);
+
+    if (typeof volume == "undefined") {
+        volume = 100;
+    } else {
+        if (volume < 0) {
+            volume = 0;
+        } else if (volume > 100) {
+            volume = 100;
         }
-        new Media(path, function (success) {
-            console.log(success);
-        }).play();
     }
+
+    if (typeof streamType == "undefined") {
+        streamType = -1;
+    }
+
+    exec(successCallback, errorCallback, "NativeRingtones", "play", [ringtoneUri, playOnce, volume, streamType]);
 };
 
 RingtoneManager.prototype.stopRingtone = function (ringtoneUri, successCallback, errorCallback) {
@@ -46,21 +52,18 @@ RingtoneManager.prototype.stopRingtone = function (ringtoneUri, successCallback,
     if (!errorCallback) {
         errorCallback = function (error) { };
     }
-    if (ringtoneUri.indexOf("content") >= 0 || ringtoneUri.indexOf("System") >= 0) {
-        exec(successCallback, errorCallback, "NativeRingtones", "stop", [ringtoneUri]);
-    }
-    else {
-        var contentPath = window.location.pathname.substr(window.location.pathname, window.location.pathname.length - 10);
-        var path;
-        if (device.platform === "Android") {
-            path = "file://" + contentPath + ringtoneUri.substr(7, ringtoneUri.length - 1);
-        } else {
-            path = contentPath + ringtoneUri.substr(7, ringtoneUri.length - 1);
-        }
-        new Media(path, function (success) {
-            console.log(success);
-        }).stop();
-    }
+
+    exec(successCallback, errorCallback, "NativeRingtones", "stop", [ringtoneUri]);
 };
+
+// https://developer.android.com/reference/android/media/AudioManager.html
+RingtoneManager.STREAM_VOICE_CALL = 0;
+RingtoneManager.STREAM_SYSTEM = 1;
+RingtoneManager.STREAM_RING = 2;
+RingtoneManager.STREAM_MUSIC = 3;
+RingtoneManager.STREAM_ALARM = 4;
+RingtoneManager.STREAM_NOTIFICATION = 5;
+RingtoneManager.STREAM_DTMF = 8;
+RingtoneManager.STREAM_ACCESSIBILITY = 10;
 
 module.exports = new RingtoneManager();
