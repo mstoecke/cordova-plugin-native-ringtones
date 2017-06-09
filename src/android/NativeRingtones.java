@@ -122,12 +122,12 @@ public class NativeRingtones extends CordovaPlugin {
                     public void onCompletion(MediaPlayer mp) {
                         mp.stop();
                         mp.release();
-                        callbackContext.success("Play the ringtone succennfully!");
                     }
                 });
             }
 
             ringtoneSound.start();
+            callbackContext.success("Play the ringtone succennfully!");
         } catch (Exception e) {
             callbackContext.error("Can't play the ringtone!");
         }
