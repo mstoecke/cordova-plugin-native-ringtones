@@ -28,9 +28,10 @@ import android.content.Context;
  */
 public class NativeRingtones extends CordovaPlugin {
 
+    private static MediaPlayer currentRingtone = null;
+
     @Override
-    public boolean execute(String action, JSONArray args,
-            CallbackContext callbackContext) throws JSONException {
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("get")){
             return this.get(args.getString(0), callbackContext);
         }
@@ -39,7 +40,7 @@ public class NativeRingtones extends CordovaPlugin {
             return this.play(args.getString(0), args.getBoolean(1), args.getInt(2), args.getInt(3), callbackContext);
         }
         if (action.equals("stop")){
-            return this.stop(args.getString(0), callbackContext);
+            return this.stop(callbackContext);
         }
         return false;
     }
@@ -99,49 +100,52 @@ public class NativeRingtones extends CordovaPlugin {
                 streamType = AudioManager.STREAM_NOTIFICATION;
             }
 
+            if (currentRingtone != null && !playOnce) {
+                currentRingtone.stop();
+                currentRingtone.release();
+                currentRingtone = null;
+            }
+
             Context ctx = this.cordova.getActivity().getApplicationContext();
-            AssetManager am = ctx.getResources().getAssets();
-            AssetFileDescriptor afd = am.openFd(ringtoneUri);
 
             MediaPlayer ringtoneSound = new MediaPlayer();
-            ringtoneSound.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            ringtoneSound.setAudioStreamType(streamType);
-            ringtoneSound.prepare();
+            ringtoneSound.setDataSource(ctx, Uri.parse(ringtoneUri));
             ringtoneSound.setLooping(!playOnce);
+            ringtoneSound.setAudioStreamType(streamType);
             ringtoneSound.setVolume(volume * 0.01f, volume * 0.01f);
+            ringtoneSound.prepare();
 
-            if (ringtoneSound != null) {
-                ringtoneSound.start();
-            } else{
-                callbackContext.error("Can't play the ringtone!");
+            if (!playOnce) {
+                currentRingtone = ringtoneSound;
+            } else {
+                ringtoneSound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.stop();
+                        mp.release();
+                        callbackContext.success("Play the ringtone succennfully!");
+                    }
+                });
             }
+
+            ringtoneSound.start();
         } catch (Exception e) {
             callbackContext.error("Can't play the ringtone!");
         }
+
         return true;
     }
 
-    private boolean stop(String ringtoneUri, final CallbackContext callbackContext) throws JSONException{
-        try {
-            Context ctx = this.cordova.getActivity().getApplicationContext();
-            AssetManager am = ctx.getResources().getAssets();
-            AssetFileDescriptor afd = am.openFd(ringtoneUri);
+    private boolean stop(final CallbackContext callbackContext) throws JSONException{
+        if (currentRingtone != null) {
+            currentRingtone.stop();
+            currentRingtone.release();
+            currentRingtone = null;
 
-            MediaPlayer ringtoneSound = new MediaPlayer();
-            ringtoneSound.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            ringtoneSound.prepare();
-
-            if (ringtoneSound != null) {
-                ringtoneSound.stop();
-                ringtoneSound.release();
-                callbackContext.success("Stop the ringtone succennfully!");
-            } else{
-                callbackContext.error("Can't stop the ringtone!");
-            }
-        } catch (Exception e) {
-            callbackContext.error("Can't play the ringtone!");
+            callbackContext.success("Stop the ringtone succennfully!");
+            return true;
+        } else {
+            callbackContext.error("Can't stop the ringtone!");
+            return false;
         }
-
-        return true;
     }
 }

@@ -45,7 +45,7 @@ RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume
     exec(successCallback, errorCallback, "NativeRingtones", "play", [ringtoneUri, playOnce, volume, streamType]);
 };
 
-RingtoneManager.prototype.stopRingtone = function (ringtoneUri, successCallback, errorCallback) {
+RingtoneManager.prototype.stopRingtone = function (successCallback, errorCallback) {
     if (!successCallback) {
         successCallback = function (success) { };
     }
@@ -53,7 +53,7 @@ RingtoneManager.prototype.stopRingtone = function (ringtoneUri, successCallback,
         errorCallback = function (error) { };
     }
 
-    exec(successCallback, errorCallback, "NativeRingtones", "stop", [ringtoneUri]);
+    exec(successCallback, errorCallback, "NativeRingtones", "stop", []);
 };
 
 // https://developer.android.com/reference/android/media/AudioManager.html

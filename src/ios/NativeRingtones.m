@@ -6,9 +6,9 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface NativeRingtones : CDVPlugin {
-  // Member variables go here.
-}
+@interface NativeRingtones : CDVPlugin 
+
+@property AVAudioPlayer * currentRingtone;
 
 - (void)get:(CDVInvokedUrlCommand*)command;
 - (void)play:(CDVInvokedUrlCommand*)command;
@@ -105,29 +105,24 @@
 
     NSURL *fileURL = [NSURL fileURLWithPath : pathFromWWW];
     CFURLRef soundFileURLRef = (CFURLRef) CFBridgingRetain(fileURL);
-    //SystemSoundID soundID;
-    //AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
+
+    if (self.currentRingtone != nil && playOnce == false) {
+        [self.currentRingtone stop];
+        self.currentRingtone = nil;
+    }
 
     AVAudioPlayer *_audioPlayer;
     _audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:fileURL error:nil];
-    _audioPlayer.volume = volume / 100.00;
+    _audioPlayer.volume = volume / 100.00; // from 0.0 to 1.0
 
     if (playOnce == false) {
         // Set any negative integer value to loop the sound indefinitely until you call the stop() method.
         _audioPlayer.numberOfLoops = -1;
+        self.currentRingtone = _audioPlayer;
     }
 
     [_audioPlayer play];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-
-    /*
-    if (soundID) {
-      AudioServicesPlaySystemSound(soundID);
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    } else {
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-    }
-    */
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -136,14 +131,9 @@
 {
     CDVPluginResult* pluginResult = nil;
 
-    NSString* ringtoneUri = [command argumentAtIndex:0];
-
-    NSURL *fileURL = [NSURL URLWithString:ringtoneUri];
-    SystemSoundID soundID;
-    AudioServicesCreateSystemSoundID((__bridge_retained CFURLRef)fileURL,&soundID);
-
-    if (soundID) {
-        AudioServicesDisposeSystemSoundID(soundID);
+    if (self.currentRingtone != nil) {
+        [self.currentRingtone stop];
+        self.currentRingtone = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];

@@ -1,9 +1,9 @@
 {
   "name": "cordova-plugin-native-ringtones",
-  "version": "0.2.5",
+  "version": "1.0.1",
   "description": "Get and play the native ringtone list on Android/IOS devices.",
   "cordova": {
-    "id": "cordova-plugin-native-ringtones",
+    "id": "cordova-plugin-native-ringtones-ef",
     "platforms": [
       "android",
       "ios"
@@ -11,10 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TongZhangzt/cordova-plugin-native-ringtones.git"
+    "url": "git+https://github.com/EltonFaust/cordova-plugin-native-ringtones.git"
   },
   "dependencies": {
-    "cordova-plugin-media": "*"
   },
   "keywords": [
     "cordova",
@@ -25,10 +24,10 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "author": "Tong Zhang",
+  "author": "Elton Faust",
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/TongZhangzt/cordova-plugin-native-ringtones/issues"
+    "url": "https://github.com/EltonFaust/cordova-plugin-native-ringtones/issues"
   },
-  "homepage": "https://github.com/TongZhangzt/cordova-plugin-native-ringtones#readme"
+  "homepage": "https://github.com/EltonFaust/cordova-plugin-native-ringtones#readme"
 }

@@ -1,4 +1,6 @@
-# cordova-plugin-native-ringtones [![npm version](https://badge.fury.io/js/cordova-plugin-native-ringtones.svg)](https://badge.fury.io/js/cordova-plugin-native-ringtones)
+# This plugin is a fork of [cordova-plugin-native-ringtones](https://github.com/TongZhangzt/cordova-plugin-native-ringtones)
+
+### cordova-plugin-native-ringtones-ef [![npm version](https://badge.fury.io/js/cordova-plugin-native-ringtones-ef.svg)](https://badge.fury.io/js/cordova-plugin-native-ringtones-ef)
 
 Plugin for the [Cordova](https://cordova.apache.org) framework to get the native ringtone list.
 
@@ -17,11 +19,11 @@ Execute from the projects root folder:
 
 Or install a specific version:
 
-    $ cordova plugin add cordova-plugin-native-ringtones@VERSION
+    $ cordova plugin add cordova-plugin-native-ringtones-ef
 
 Or install the latest head version:
 
-    $ cordova plugin add https://github.com/TongZhangzt/cordova-plugin-native-ringtones
+    $ cordova plugin add https://github.com/EltonFaust/cordova-plugin-native-ringtones
 
 ## Usage
 The plugin creates the object `cordova.plugins.NativeRingtones` and is accessible after the *deviceready* event has been fired.
@@ -40,7 +42,7 @@ document.addEventListener('deviceready', function () {
         },
         function(err) {
             alert(err);
-        }
+        }, 'alarm'
     );
 }, false);
 ```
@@ -61,6 +63,11 @@ document.addEventListener('deviceready', function () {
         "/System/Library/Audio/UISounds/Modern/calendar_alert_chord.caf",
         playOnce, volume, streamType
     );
+
+    window.setTimeout(function(){
+        // if is set to false playOnce param for playRingtone method, call stopRingtone to stop playing
+        cordova.plugins.NativeRingtones.stopRingtone();
+    }, 5000);
 }, false);
 ```
 
