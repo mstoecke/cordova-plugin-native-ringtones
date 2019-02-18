@@ -104,6 +104,9 @@
     NSString* pathFromWWW = [NSString stringWithFormat:@"%@/%@", basePath, ringtoneUri];
 
     NSURL *fileURL = [NSURL fileURLWithPath : pathFromWWW];
+    if( ![[NSFileManager defaultManager] fileExistsAtPath:pathFromWWW]){
+        fileURL = [NSURL fileURLWithPath : ringtoneUri];
+    }
     CFURLRef soundFileURLRef = (CFURLRef) CFBridgingRetain(fileURL);
 
     if (self.currentRingtone != nil && playOnce == false) {
