@@ -112,7 +112,7 @@ public class NativeRingtones extends CordovaPlugin {
             ringtoneSound.setDataSource(ctx, Uri.parse(ringtoneUri));
             ringtoneSound.setLooping(!playOnce);
             ringtoneSound.setAudioStreamType(streamType);
-            ringtoneSound.setVolume(volume * 0.01f, volume * 0.01f);
+            if(volume >= 0) ringtoneSound.setVolume(volume * 0.01f, volume * 0.01f);
             ringtoneSound.prepare();
 
             if (!playOnce) {

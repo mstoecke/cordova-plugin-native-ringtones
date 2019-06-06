@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface NativeRingtones : CDVPlugin 
+@interface NativeRingtones : CDVPlugin
 
 @property AVAudioPlayer * currentRingtone;
 
@@ -116,8 +116,11 @@
 
     AVAudioPlayer *_audioPlayer;
     _audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:fileURL error:nil];
-    _audioPlayer.volume = volume / 100.00; // from 0.0 to 1.0
-
+    if(volume < 0){
+        _audioPlayer.volume = 1.0
+    }else{
+        _audioPlayer.volume = volume / 100.00; // from 0.0 to 1.0
+    }
     if (playOnce == false) {
         // Set any negative integer value to loop the sound indefinitely until you call the stop() method.
         _audioPlayer.numberOfLoops = -1;

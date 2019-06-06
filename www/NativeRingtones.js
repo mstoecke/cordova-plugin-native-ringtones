@@ -7,7 +7,7 @@ function RingtoneManager() {
 
 /**
  * Get the ringtone list of the device
- * 
+ *
  * @param {Object}
  *            Set the ringtone list to the attribute ringtoneList of the object
  */
@@ -32,7 +32,7 @@ RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume
         volume = 100;
     } else {
         if (volume < 0) {
-            volume = 0;
+            volume = -1;
         } else if (volume > 100) {
             volume = 100;
         }
