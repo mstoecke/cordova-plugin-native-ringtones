@@ -117,7 +117,7 @@
     AVAudioPlayer *_audioPlayer;
     _audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:fileURL error:nil];
     if(volume < 0){
-        _audioPlayer.volume = 1.0
+        _audioPlayer.volume = 1.0;
     }else{
         _audioPlayer.volume = volume / 100.00; // from 0.0 to 1.0
     }
