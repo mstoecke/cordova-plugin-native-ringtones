@@ -135,17 +135,24 @@ public class NativeRingtones extends CordovaPlugin {
         return true;
     }
 
-    private boolean stop(final CallbackContext callbackContext) throws JSONException{
+    private boolean stop(final CallbackContext callbackContext){
         if (currentRingtone != null) {
             currentRingtone.stop();
             currentRingtone.release();
             currentRingtone = null;
 
-            callbackContext.success("Stop the ringtone succennfully!");
+            if(callbackContext != null) callbackContext.success("Stop the ringtone successfully!");
             return true;
         } else {
-            callbackContext.error("Can't stop the ringtone!");
+            if(callbackContext != null) callbackContext.error("Can't stop the ringtone!");
             return false;
         }
     }
+
+    @Override
+    public void onDestroy(){
+        this.stop(null);
+        super.onDestroy();
+    }
+
 }
