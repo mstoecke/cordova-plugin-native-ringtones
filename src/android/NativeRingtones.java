@@ -47,38 +47,33 @@ public class NativeRingtones extends CordovaPlugin {
 
   private boolean get(String ringtoneType, final CallbackContext callbackContext) throws JSONException{
         RingtoneManager manager = new RingtoneManager(this.cordova.getActivity().getBaseContext());
+        Uri defaultRingtoneUri;
 
         //The default value if ringtone type is "notification"
         if (ringtoneType.equals("alarm")) {
             manager.setType(RingtoneManager.TYPE_ALARM);
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         } else if (ringtoneType.equals("ringtone")){
             manager.setType(RingtoneManager.TYPE_RINGTONE);
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         } else {
             manager.setType(RingtoneManager.TYPE_NOTIFICATION);
+            defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         }
 
         Cursor cursor = manager.getCursor();
         JSONArray ringtoneList = new JSONArray();
 
+        JSONObject json = new JSONObject();
+        json.put("Name", "Default");
+        json.put("Url", defaultRingtoneUri);
+        ringtoneList.put(json);
+
         while (cursor.moveToNext()) {
             String notificationTitle = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX);
             String notificationUri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + cursor.getString(RingtoneManager.ID_COLUMN_INDEX);
 
-            /****   Transfer Content URI to file URI   ******* /
-            /* String filePath;
-
-            if (notificationUri != null && "content".equals(notificationUri.getScheme())) {
-                Cursor cursor1 = this.cordova.getActivity().getBaseContext().getContentResolver().query(notificationUri, new String[] {
-                    android.provider.MediaStore.Images.ImageColumns.DATA
-                }, null, null, null);
-                cursor1.moveToFirst();
-                filePath = cursor1.getString(0);
-                cursor1.close();
-            } else {
-                filePath = notificationUri.getPath();
-            }*/
-
-            JSONObject json = new JSONObject();
+            json = new JSONObject();
             json.put("Name", notificationTitle);
             json.put("Url", notificationUri);
 

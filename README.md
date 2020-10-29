@@ -37,7 +37,7 @@ You can call the function getRingtone to get the ringtone list. There are two/th
 document.addEventListener('deviceready', function () {
     cordova.plugins.NativeRingtones.getRingtone(
         function(ringtones) {
-            //An object array contains all the ringtones
+            //An object array contains all the ringtones, including the systems default ringtone at the beginning
             console.log(ringtones);
         },
         function(err) {
