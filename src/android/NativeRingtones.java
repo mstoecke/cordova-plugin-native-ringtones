@@ -12,7 +12,7 @@ import java.util.*;
 import android.content.ContentValues;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
-import android.media.AudioManager;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.media.Ringtone;
 import android.media.MediaPlayer;
@@ -36,7 +36,7 @@ public class NativeRingtones extends CordovaPlugin {
             return this.get(args.getString(0), callbackContext);
         }
         if (action.equals("play")){
-            // ringtoneUri, playOnce, volume, streamType
+            // ringtoneUri, playOnce, volume, usage
             return this.play(args.getString(0), args.getBoolean(1), args.getInt(2), args.getInt(3), callbackContext);
         }
         if (action.equals("stop")){
@@ -65,7 +65,7 @@ public class NativeRingtones extends CordovaPlugin {
         JSONArray ringtoneList = new JSONArray();
 
         JSONObject json = new JSONObject();
-        json.put("Name", "Default");
+        json.put("Name", "[System default]");
         json.put("Url", defaultRingtoneUri);
         ringtoneList.put(json);
 
@@ -89,12 +89,8 @@ public class NativeRingtones extends CordovaPlugin {
         return true;
     }
 
-    private boolean play(String ringtoneUri, boolean playOnce, int volume, int streamType, final CallbackContext callbackContext) throws JSONException{
+    private boolean play(String ringtoneUri, boolean playOnce, int volume, int usage, final CallbackContext callbackContext) throws JSONException{
         try {
-            if (streamType == -1) {
-                streamType = AudioManager.STREAM_NOTIFICATION;
-            }
-
             if (currentRingtone != null && !playOnce) {
                 currentRingtone.stop();
                 currentRingtone.release();
@@ -106,7 +102,7 @@ public class NativeRingtones extends CordovaPlugin {
             MediaPlayer ringtoneSound = new MediaPlayer();
             ringtoneSound.setDataSource(ctx, Uri.parse(ringtoneUri));
             ringtoneSound.setLooping(!playOnce);
-            ringtoneSound.setAudioStreamType(streamType);
+            ringtoneSound.setAudioAttributes(new AudioAttributes.Builder().setUsage(usage).build());
             if(volume >= 0) ringtoneSound.setVolume(volume * 0.01f, volume * 0.01f);
             ringtoneSound.prepare();
 

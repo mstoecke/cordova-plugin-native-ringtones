@@ -55,13 +55,13 @@ document.addEventListener('deviceready', function () {
     var playOnce = false;
     // ringtone volume, value between 0 and 100 (default: 100)
     var volume = 50;
-    // Android only: play ringtone as type (default: cordova.plugins.NativeRingtones.STREAM_NOTIFICATION)
-    var streamType = cordova.plugins.NativeRingtones.STREAM_ALARM;
+    // Android only: play ringtone as type (default: cordova.plugins.NativeRingtones.USAGE_NOTIFICATION_RINGTONE)
+    var usage = cordova.plugins.NativeRingtones.USAGE_ALARM;
 
-    // params playOnce, volume, streamType are not required
+    // params playOnce, volume, usage are not required
     cordova.plugins.NativeRingtones.playRingtone(
         "/System/Library/Audio/UISounds/Modern/calendar_alert_chord.caf",
-        playOnce, volume, streamType
+        playOnce, volume, usage
     );
 
     window.setTimeout(function(){

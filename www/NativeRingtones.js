@@ -1,7 +1,23 @@
 var exec = require('cordova/exec');
 
 function RingtoneManager() {
-    this.propTest = 'superTest';
+    // https://developer.android.com/reference/android/media/AudioAttributes
+    this.USAGE_MEDIA = 1;
+    this.USAGE_UNKNOWN = 0;
+    this.USAGE_VOICE_COMMUNICATION = 2;
+    this.USAGE_VOICE_COMMUNICATION_SIGNALLING = 3;
+    this.USAGE_ALARM = 4;
+    this.USAGE_NOTIFICATION = 5;
+    this.USAGE_NOTIFICATION_RINGTONE = 6;
+    this.USAGE_NOTIFICATION_COMMUNICATION_REQUEST = 7;
+    this.USAGE_NOTIFICATION_COMMUNICATION_INSTANT = 8;
+    this.USAGE_NOTIFICATION_COMMUNICATION_DELAYED = 9;
+    this.USAGE_NOTIFICATION_EVENT = 10;
+    this.USAGE_ASSISTANCE_ACCESSIBILITY = 11;
+    this.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE = 12;
+    this.USAGE_ASSISTANCE_SONIFICATION = 13;
+    this.USAGE_GAME = 14;
+    this.USAGE_ASSISTANT = 16;
 }
 
 
@@ -15,7 +31,7 @@ RingtoneManager.prototype.getRingtone = function (successCallback, errorCallback
     exec(successCallback, errorCallback, "NativeRingtones", "get", [ringtoneType]);
 };
 
-RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume, streamType, successCallback, errorCallback) {
+RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume, usage, successCallback, errorCallback) {
     if (!successCallback) {
         successCallback = function (success) { };
     }
@@ -38,11 +54,11 @@ RingtoneManager.prototype.playRingtone = function (ringtoneUri, playOnce, volume
         }
     }
 
-    if (typeof streamType == "undefined") {
-        streamType = -1;
+    if (typeof usage == "undefined") {
+        usage = this.USAGE_NOTIFICATION_RINGTONE;
     }
 
-    exec(successCallback, errorCallback, "NativeRingtones", "play", [ringtoneUri, playOnce, volume, streamType]);
+    exec(successCallback, errorCallback, "NativeRingtones", "play", [ringtoneUri, playOnce, volume, usage]);
 };
 
 RingtoneManager.prototype.stopRingtone = function (successCallback, errorCallback) {
@@ -55,15 +71,5 @@ RingtoneManager.prototype.stopRingtone = function (successCallback, errorCallbac
 
     exec(successCallback, errorCallback, "NativeRingtones", "stop", []);
 };
-
-// https://developer.android.com/reference/android/media/AudioManager.html
-RingtoneManager.STREAM_VOICE_CALL = 0;
-RingtoneManager.STREAM_SYSTEM = 1;
-RingtoneManager.STREAM_RING = 2;
-RingtoneManager.STREAM_MUSIC = 3;
-RingtoneManager.STREAM_ALARM = 4;
-RingtoneManager.STREAM_NOTIFICATION = 5;
-RingtoneManager.STREAM_DTMF = 8;
-RingtoneManager.STREAM_ACCESSIBILITY = 10;
 
 module.exports = new RingtoneManager();
